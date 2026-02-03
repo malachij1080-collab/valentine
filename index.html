@@ -39,8 +39,10 @@
     }
 
     .btns {
-      position: relative;
-      height: 90px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 18px;
       margin-top: 18px;
     }
 
@@ -54,19 +56,8 @@
       box-shadow: 0 12px 28px rgba(0,0,0,.2);
     }
 
-    #yes {
-      background: #22c55e;
-      color: white;
-      position: relative;
-      z-index: 3;
-    }
-
-    #no {
-      background: #ef4444;
-      color: white;
-      position: fixed;
-      z-index: 3;
-    }
+    #yes { background: #22c55e; color: white; }
+    #no  { background: #ef4444; color: white; }
 
     #msg {
       margin-top: 22px;
@@ -86,29 +77,30 @@
 
     <div class="btns">
       <button id="yes">YES 💖</button>
+      <button id="no">NO 🙃</button>
     </div>
 
     <div id="msg"></div>
   </div>
-
-  <button id="no">NO 🙃</button>
 
   <script>
     const no = document.getElementById("no");
     const yes = document.getElementById("yes");
     const msg = document.getElementById("msg");
 
-    // --- place NO next to YES on load ---
-    function placeNoNextToYes() {
-      const r = yes.getBoundingClientRect();
-      no.style.left = r.right + 14 + "px";
-      no.style.top = r.top + "px";
-    }
+    let escaped = false;
 
-    // --- move NO anywhere except near YES ---
     function moveNoAnywhere() {
+      if (!escaped) {
+        const r = no.getBoundingClientRect();
+        no.style.position = "fixed";
+        no.style.left = r.left + "px";
+        no.style.top = r.top + "px";
+        escaped = true;
+      }
+
       const yesRect = yes.getBoundingClientRect();
-      const padding = 90;
+      const padding = 100;
 
       let x, y, tries = 0;
 
@@ -128,17 +120,15 @@
       no.style.top = y + "px";
     }
 
-    window.addEventListener("load", placeNoNextToYes);
-    window.addEventListener("resize", placeNoNextToYes);
-
     no.addEventListener("mouseenter", moveNoAnywhere);
     no.addEventListener("touchstart", moveNoAnywhere, { passive: true });
     no.addEventListener("click", moveNoAnywhere);
 
-    // --- confetti ---
+    /* ---------- HEART CONFETTI ---------- */
+
     const canvas = document.getElementById("confetti");
     const ctx = canvas.getContext("2d");
-    let pieces = [];
+    let hearts = [];
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -147,18 +137,34 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
+    function drawHeart(x, y, size, color, rotation) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.scale(size, size);
+      ctx.beginPath();
+      ctx.moveTo(0, -0.3);
+      ctx.bezierCurveTo(-0.5, -0.8, -1.2, -0.1, 0, 1);
+      ctx.bezierCurveTo(1.2, -0.1, 0.5, -0.8, 0, -0.3);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.restore();
+    }
+
     function launchConfetti() {
-      pieces = [];
-      for (let i = 0; i < 220; i++) {
-        pieces.push({
+      hearts = [];
+      const colors = ["#ff4d6d", "#ff758f", "#ffd1dc", "#ff8fab", "#c77dff"];
+
+      for (let i = 0; i < 200; i++) {
+        hearts.push({
           x: Math.random() * canvas.width,
           y: Math.random() * -canvas.height,
           size: Math.random() * 8 + 6,
-          speed: Math.random() * 4 + 3,
-          rot: Math.random() * Math.PI,
-          spin: Math.random() * 0.2 - 0.1,
-          color: ["#ff4d6d","#ffd166","#06d6a0","#4dabf7","#c77dff"]
-            [Math.floor(Math.random() * 5)]
+          speed: Math.random() * 3 + 2.5,
+          rotation: Math.random() * Math.PI,
+          spin: Math.random() * 0.04 - 0.02,
+          color: colors[Math.floor(Math.random() * colors.length)]
         });
       }
       requestAnimationFrame(updateConfetti);
@@ -166,18 +172,15 @@
 
     function updateConfetti() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      pieces.forEach(p => {
-        p.y += p.speed;
-        p.rot += p.spin;
-        ctx.save();
-        ctx.translate(p.x, p.y);
-        ctx.rotate(p.rot);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.4);
-        ctx.restore();
+
+      hearts.forEach(h => {
+        h.y += h.speed;
+        h.rotation += h.spin;
+        drawHeart(h.x, h.y, h.size / 20, h.color, h.rotation);
       });
-      pieces = pieces.filter(p => p.y < canvas.height + 40);
-      if (pieces.length) requestAnimationFrame(updateConfetti);
+
+      hearts = hearts.filter(h => h.y < canvas.height + 40);
+      if (hearts.length) requestAnimationFrame(updateConfetti);
     }
 
     yes.addEventListener("click", () => {
@@ -188,3 +191,4 @@
 
 </body>
 </html>
+
