@@ -124,12 +124,12 @@
     no.addEventListener("touchstart", moveNoAnywhere, { passive: true });
     no.addEventListener("click", moveNoAnywhere);
 
-    /* ---------- HEART CONFETTI (NORMAL SPEED) ---------- */
+    /* ---------- HEART CONFETTI (FASTER + LESS) ---------- */
 
     const canvas = document.getElementById("confetti");
     const ctx = canvas.getContext("2d");
     let hearts = [];
-    const gravity = 0.35; // acceleration
+    const gravity = 0.55; // faster acceleration
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -140,14 +140,14 @@
 
     function launchConfetti() {
       hearts = [];
-      for (let i = 0; i < 220; i++) {
+      for (let i = 0; i < 120; i++) { // fewer hearts
         hearts.push({
           x: Math.random() * canvas.width,
-          y: Math.random() * -canvas.height * 0.6,
-          size: Math.random() * 26 + 22,
-          vy: Math.random() * 3 + 4,   // initial fall speed
+          y: Math.random() * -canvas.height * 0.4,
+          size: Math.random() * 24 + 20,
+          vy: Math.random() * 4 + 6,   // faster initial speed
           rotation: Math.random() * Math.PI,
-          spin: Math.random() * 0.05 - 0.025,
+          spin: Math.random() * 0.06 - 0.03,
           char: ["💖","💘","💕","💗","💞"][Math.floor(Math.random() * 5)]
         });
       }
@@ -158,7 +158,7 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       hearts.forEach(h => {
-        h.vy += gravity;        // accelerate
+        h.vy += gravity;
         h.y += h.vy;
         h.rotation += h.spin;
 
@@ -182,5 +182,3 @@
 
 </body>
 </html>
-
-
