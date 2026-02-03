@@ -16,8 +16,15 @@
       overflow: hidden;
     }
 
+    canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
     .card {
-      background: #fff;
+      background: white;
       padding: 28px;
       border-radius: 22px;
       box-shadow: 0 24px 60px rgba(0,0,0,.25);
@@ -60,24 +67,12 @@
       font-weight: 800;
       min-height: 28px;
     }
-
-    .confetti {
-      position: fixed;
-      pointer-events: none;
-      z-index: 9999;
-      animation: fall linear forwards;
-    }
-
-    @keyframes fall {
-      to {
-        transform: translateY(120vh) rotate(960deg);
-        opacity: 0;
-      }
-    }
   </style>
 </head>
 
 <body>
+
+  <canvas id="confetti"></canvas>
 
   <div class="card">
     <h1>Will you be my Valentine? 💘</h1>
@@ -91,6 +86,7 @@
   </div>
 
   <script>
+    // ----- NO BUTTON -----
     const area = document.getElementById("area");
     const no = document.getElementById("no");
     const yes = document.getElementById("yes");
@@ -99,10 +95,10 @@
     function moveNo() {
       const r = area.getBoundingClientRect();
       const pad = 12;
-      const x = Math.random() * (r.width - no.offsetWidth - pad * 2) + pad;
-      const y = Math.random() * (r.height - no.offsetHeight - pad * 2) + pad;
-      no.style.left = x + "px";
-      no.style.top = y + "px";
+      no.style.left =
+        Math.random() * (r.width - no.offsetWidth - pad * 2) + pad + "px";
+      no.style.top =
+        Math.random() * (r.height - no.offsetHeight - pad * 2) + pad + "px";
     }
 
     window.addEventListener("load", moveNo);
@@ -111,33 +107,57 @@
     no.addEventListener("touchstart", moveNo, { passive: true });
     no.addEventListener("click", moveNo);
 
-    function confettiExplosion() {
-      const colors = ["#ff4d6d", "#ffd166", "#06d6a0", "#4dabf7", "#c77dff"];
-      const count = 280;
+    // ----- CANVAS CONFETTI -----
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+    let pieces = [];
 
-      for (let i = 0; i < count; i++) {
-        const c = document.createElement("div");
-        c.className = "confetti";
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
 
-        const size = Math.random() * 10 + 8;
-        c.style.width = size + "px";
-        c.style.height = size * 1.4 + "px";
-
-        c.style.left = Math.random() * 100 + "vw";
-        c.style.top = (-40 - Math.random() * 120) + "px";
-        c.style.background = colors[Math.floor(Math.random() * colors.length)];
-
-        const duration = Math.random() * 1.5 + 2;
-        c.style.animationDuration = duration + "s";
-
-        document.body.appendChild(c);
-        setTimeout(() => c.remove(), (duration + 0.3) * 1000);
+    function launchConfetti() {
+      pieces = [];
+      for (let i = 0; i < 200; i++) {
+        pieces.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * -canvas.height,
+          size: Math.random() * 8 + 6,
+          speed: Math.random() * 4 + 3,
+          rot: Math.random() * Math.PI,
+          spin: Math.random() * 0.2 - 0.1,
+          color: ["#ff4d6d","#ffd166","#06d6a0","#4dabf7","#c77dff"]
+            [Math.floor(Math.random() * 5)]
+        });
       }
+      requestAnimationFrame(updateConfetti);
+    }
+
+    function updateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      pieces.forEach(p => {
+        p.y += p.speed;
+        p.rot += p.spin;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.4);
+        ctx.restore();
+      });
+
+      pieces = pieces.filter(p => p.y < canvas.height + 40);
+      if (pieces.length > 0) requestAnimationFrame(updateConfetti);
     }
 
     yes.addEventListener("click", () => {
       msg.textContent = "Okay… it’s a date 💞";
-      confettiExplosion();
+      launchConfetti();
     });
   </script>
 
