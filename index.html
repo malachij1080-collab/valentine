@@ -55,12 +55,14 @@
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(0,0,0,.2);
+      transition: transform 0.25s ease;
     }
 
     #yes {
       background: #22c55e;
       color: white;
       z-index: 3;
+      transform-origin: center;
     }
 
     #no {
@@ -69,7 +71,6 @@
       z-index: 3;
     }
 
-    /* invisible placeholder to preserve layout */
     .ghost {
       visibility: hidden;
     }
@@ -105,21 +106,29 @@
     const msg = document.getElementById("msg");
 
     let escaped = false;
+    let growthCount = 0;
+    const maxGrowth = 4;
+    const growthStep = 0.12; // 12% per growth
 
     function lockYesPosition() {
       const r = yes.getBoundingClientRect();
 
-      // Insert placeholder so layout never collapses
       const ghost = document.createElement("div");
       ghost.className = "ghost";
       ghost.style.width = r.width + "px";
       ghost.style.height = r.height + "px";
       yes.after(ghost);
 
-      // Lock YES visually
       yes.style.position = "fixed";
       yes.style.left = r.left + "px";
       yes.style.top  = r.top  + "px";
+    }
+
+    function growYes() {
+      if (growthCount >= maxGrowth) return;
+      growthCount++;
+      const scale = 1 + growthStep * growthCount;
+      yes.style.transform = `scale(${scale})`;
     }
 
     function moveNoAnywhere() {
@@ -152,6 +161,8 @@
 
       no.style.left = x + "px";
       no.style.top  = y + "px";
+
+      growYes();
     }
 
     no.addEventListener("mouseenter", moveNoAnywhere);
