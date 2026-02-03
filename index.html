@@ -124,7 +124,7 @@
     no.addEventListener("touchstart", moveNoAnywhere, { passive: true });
     no.addEventListener("click", moveNoAnywhere);
 
-    /* ---------- HEART CONFETTI (FIXED) ---------- */
+    /* ---------- HEART CONFETTI ---------- */
 
     const canvas = document.getElementById("confetti");
     const ctx = canvas.getContext("2d");
@@ -137,36 +137,17 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    function drawHeart(x, y, size, color, rotation) {
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(rotation);
-      ctx.fillStyle = color;
-      ctx.beginPath();
-
-      const s = size;
-      ctx.moveTo(0, s);
-      ctx.bezierCurveTo(-s, s - s, -s * 1.4, -s * 0.2, 0, -s);
-      ctx.bezierCurveTo(s * 1.4, -s * 0.2, s, s - s, 0, s);
-
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
     function launchConfetti() {
       hearts = [];
-      const colors = ["#ff4d6d", "#ff758f", "#ffd1dc", "#ff8fab", "#c77dff"];
-
-      for (let i = 0; i < 220; i++) {
+      for (let i = 0; i < 200; i++) {
         hearts.push({
           x: Math.random() * canvas.width,
           y: Math.random() * -canvas.height,
-          size: Math.random() * 10 + 8,
-          speed: Math.random() * 3 + 2,
+          size: Math.random() * 26 + 22,
+          speed: Math.random() * 2.5 + 2,
           rotation: Math.random() * Math.PI,
-          spin: Math.random() * 0.06 - 0.03,
-          color: colors[Math.floor(Math.random() * colors.length)]
+          spin: Math.random() * 0.03 - 0.015,
+          char: ["💖","💘","💕","💗","💞"][Math.floor(Math.random() * 5)]
         });
       }
       requestAnimationFrame(updateConfetti);
@@ -178,10 +159,16 @@
       hearts.forEach(h => {
         h.y += h.speed;
         h.rotation += h.spin;
-        drawHeart(h.x, h.y, h.size, h.color, h.rotation);
+
+        ctx.save();
+        ctx.translate(h.x, h.y);
+        ctx.rotate(h.rotation);
+        ctx.font = `${h.size}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif`;
+        ctx.fillText(h.char, 0, 0);
+        ctx.restore();
       });
 
-      hearts = hearts.filter(h => h.y < canvas.height + 50);
+      hearts = hearts.filter(h => h.y < canvas.height + 60);
       if (hearts.length) requestAnimationFrame(updateConfetti);
     }
 
@@ -193,5 +180,6 @@
 
 </body>
 </html>
+
 
 
