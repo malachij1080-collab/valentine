@@ -4,17 +4,73 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Valentine?</title>
+
   <style>
-    body{margin:0;height:100vh;display:grid;place-items:center;font-family:system-ui;background:#ffd1dc}
-    .card{background:#fff;padding:24px;border-radius:18px;box-shadow:0 18px 40px rgba(0,0,0,.18);text-align:center;width:min(520px,92vw)}
+    body{
+      margin:0;
+      height:100vh;
+      display:grid;
+      place-items:center;
+      font-family:system-ui;
+      background:#ffd1dc;
+      overflow:hidden;
+    }
+
+    .card{
+      background:#fff;
+      padding:24px;
+      border-radius:18px;
+      box-shadow:0 18px 40px rgba(0,0,0,.18);
+      text-align:center;
+      width:min(520px,92vw);
+      z-index:2;
+    }
+
     h1{margin:0 0 10px}
-    .btns{position:relative;height:70px;display:flex;justify-content:center;align-items:center;gap:12px;margin-top:16px}
-    button{border:0;border-radius:999px;padding:12px 18px;font-size:18px;font-weight:700;cursor:pointer}
+
+    .btns{
+      position:relative;
+      height:70px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:12px;
+      margin-top:16px
+    }
+
+    button{
+      border:0;
+      border-radius:999px;
+      padding:12px 18px;
+      font-size:18px;
+      font-weight:700;
+      cursor:pointer
+    }
+
     #yes{background:#22c55e;color:#fff}
     #no{background:#ef4444;color:#fff;position:absolute}
+
     #msg{margin-top:16px;font-weight:700}
+
+    /* Confetti pieces */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 16px;
+      top: -20px;
+      animation: fall linear forwards;
+      z-index: 1;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
+
 <body>
   <div class="card">
     <h1>Will you be my Valentine? 💘</h1>
@@ -43,14 +99,31 @@
     window.addEventListener("load", placeNo);
     window.addEventListener("resize", placeNo);
 
-    no.addEventListener("mousemove", placeNo);
-    no.addEventListener("touchstart", placeNo, {passive:true});
+    no.addEventListener("mouseenter", placeNo);
+    no.addEventListener("touchstart", placeNo, { passive: true });
     no.addEventListener("click", placeNo);
+
+    function confettiExplosion() {
+      const colors = ["#ff4d6d", "#ffd166", "#06d6a0", "#4dabf7", "#c77dff"];
+      const count = 200;
+
+      for (let i = 0; i < count; i++) {
+        const c = document.createElement("div");
+        c.className = "confetti";
+        c.style.left = Math.random() * 100 + "vw";
+        c.style.background = colors[Math.floor(Math.random() * colors.length)];
+        c.style.animationDuration = Math.random() * 2 + 2 + "s";
+        c.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(c);
+
+        setTimeout(() => c.remove(), 4000);
+      }
+    }
 
     yes.addEventListener("click", () => {
       msg.textContent = "Okay yay. It’s a date 💞";
+      confettiExplosion();
     });
   </script>
 </body>
 </html>
-
